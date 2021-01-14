@@ -1,0 +1,64 @@
+---
+title: "ESM 244 Lab Week 2"
+author: "Kat Cotti"
+date: "1/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(palmerpenguins)
+library(here)
+library(dplyr)
+
+# For PCA:
+library(ggfortify)
+
+# For ggplot customization:
+library(readxl)
+library(gghighlight)
+library(lubridate)
+library(plotly)
+
+#To make compound figures:
+library(patchwork)
+```
+
+## Part 1: PCA with Penguins 
+
+```{r}
+#Select variables we are going to use - ends with picks all vars that end in mm: 
+penguins_pca <- penguins %>% 
+  select(body_mass_g, ends_with("_mm")) %>% 
+#Remove NA values: 
+  drop_na() %>% 
+#Scale the data (to make sure no variable is overweighted just because of the units): 
+  scale() %>% 
+#Run PCA 
+  prcomp()
+
+#What are the loadings for each variable - 
+penguins_pca$rotation 
+
+#Make an additional data set - observations match the observations used to create PCA bioplot but contains other variables that we may be interested in to update aesthetics of PCA biplot: 
+penguin_complete <- penguins %>% 
+#Only drop na from specific observations: 
+  drop_na(body_mass_g, ends_with("_mm"))
+
+#Create a Biplot using the autoplot function: creates the type of plot you assume you want to make - part of ggplot and ggfortify - for a PCA outcome this assumes you want a PCA biplot:  
+
+#OBSERVATIONS & DATA MUST MATCH!!! 
+autoplot(penguins_pca,
+         data = penguin_complete,
+         colour = 'species',
+         loadings = TRUE,
+         loadings.label = TRUE) +
+  theme_minimal()
+```
+- almost 90% of the variation in the data is captured by this PCA bi-plot (sum the % of PC1 and PC2)
+- Basic info we want for PCA:
+  - arrows for loadings --> correlations between variables
+  - location of variables in multivariate space --> clusters 
+
